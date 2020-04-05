@@ -1,0 +1,3 @@
+# VCDependencyContainer
+
+Simple DI container
