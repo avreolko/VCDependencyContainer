@@ -1,6 +1,10 @@
 import XCTest
 @testable import VCDependencyContainer
 
+private protocol Foo { }
+private protocol Bar { }
+private protocol Cin { }
+
 final class VCDependencyContainerTests: XCTestCase {
 
     private var container: IDependencyContainer!
@@ -41,11 +45,23 @@ final class VCDependencyContainerTests: XCTestCase {
         _ = self.container.resolve() as Foo?
     }
 
-
     func test_nil_registration() {
         class B { init(foo: Foo?) { } }
         self.container.register { nil as Foo? }
         XCTAssertNil(self.container.resolve() as Foo?)
+    }
+
+    func test_optional_resolving_reversed_multiple() {
+        class A: Foo & Bar { }
+        self.container.register { A() as (Foo & Bar)? }
+        _ = self.container.resolve() as (Foo & Bar)?
+    }
+
+    // disabled because crash is expected behaviour in this case
+    func disabled_test_optional_resolving_reversed() {
+        class A: Foo { }
+        self.container.register { A() as Foo? }
+        _ = self.container.resolve() as Foo
     }
 
     // MARK: - multiple interfaces
@@ -149,7 +165,3 @@ final class VCDependencyContainerTests: XCTestCase {
         XCTAssertEqual(a.value, 10)
     }
 }
-
-private protocol Foo { }
-private protocol Bar { }
-private protocol Cin { }

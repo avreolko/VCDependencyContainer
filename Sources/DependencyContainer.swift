@@ -11,12 +11,12 @@ import Foundation
 // MARK: - implementation
 public final class DependencyContainer: IDependencyContainer {
 
-    internal typealias Key = String
+    internal typealias Keys = Set<String>
     internal typealias Builder = (IDependencyContainer) -> Any
 
     struct Definition {
         let type: DependencyType
-        let keys: [Key]
+        let keys: Keys
         let builder: Builder
     }
 
@@ -29,19 +29,14 @@ public final class DependencyContainer: IDependencyContainer {
 
     public func register<T>(_ type: DependencyType = .unique,
                             _ builder: @escaping (IDependencyContainer) -> T) {
-
-        let types = self.types(for: T.self)
-
+        let types = self.registrationKeys(for: T.self)
         self.definitions.append(Definition(type: type, keys: types, builder: builder))
     }
 
     public func resolve<T>() -> T {
 
-        let types = self.types(for: T.self)
-
-        guard let definition = self.definition(for: T.self) else {
-            fatalError("⚠️ No definition found for: \(types)")
-        }
+        let keys = self.resolvingKeys(for: T.self)
+        let definition = self.definition(for: keys)
 
         switch definition.type {
         case .unique:
@@ -101,26 +96,46 @@ private extension DependencyContainer {
 // MARK: - utils
 private extension DependencyContainer {
 
-    // 🤷🏾‍♂️
-    func types(for type: Any.Type) -> [String] {
+    func resolvingKeys(for type: Any.Type) -> Keys {
 
-        var typeName = "\(type)"
+        let typeName = "\(type)"
 
         if typeName.contains("Optional<") {
-            typeName = typeName.replacingOccurrences(of: "Optional<", with: "")
-            typeName = String(typeName.dropLast())
+            return Set([typeName])
         }
 
-        return typeName
+        return Set(
+            "\(type)"
             .split(separator: "&")
             .map { $0.trimmingCharacters(in: .whitespaces) }
+        )
     }
 
-    func definition(for type: Any.Type) -> Definition? {
-        let typesSet = Set(self.types(for: type))
+    func registrationKeys(for type: Any.Type) -> Keys {
 
-        return self.definitions.first { definition in
-            typesSet.isSubset(of: Set(definition.keys))
+        let typeName = "\(type)"
+
+        if typeName.contains("Optional<") {
+            return Set([typeName])
         }
+
+        var typeNames = typeName
+            .split(separator: "&")
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+
+        if typeName.contains("Optional<") == false {
+            typeNames.append("Optional<\(typeName)>")
+        }
+
+        return Set(typeNames)
+    }
+
+    func definition(for keys: Keys) -> Definition {
+
+        guard let definition = (self.definitions.first { definition in
+            keys.isSubset(of: definition.keys)
+        }) else { fatalError("⚠️ No definition found for: \(keys)") }
+
+        return definition
     }
 }
