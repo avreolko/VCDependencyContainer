@@ -1,9 +1,9 @@
 import XCTest
 @testable import VCDependencyContainer
 
-private protocol Foo { }
-private protocol Bar { }
-private protocol Cin { }
+protocol Foo { }
+protocol Bar { }
+protocol Cin { }
 
 final class VCDependencyContainerTests: XCTestCase {
 
@@ -55,6 +55,12 @@ final class VCDependencyContainerTests: XCTestCase {
         class A: Foo & Bar { }
         self.container.register { A() as (Foo & Bar)? }
         _ = self.container.resolve() as (Foo & Bar)?
+    }
+
+    func test_multiple_interfaces_and_one_optional_parameter() {
+        class A: Foo & Bar {}
+        self.container.register { A() as Foo & Bar }
+        _ = self.container.resolve() as Foo?
     }
 
     // disabled because crash is expected behaviour in this case

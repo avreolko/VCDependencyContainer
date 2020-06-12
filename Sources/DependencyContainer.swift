@@ -25,11 +25,13 @@ public final class DependencyContainer: IDependencyContainer {
     private var sharedItems: [Any] = []
     private var singleObjects: [Weak<AnyObject>] = []
 
+    private let typeMapper = TypeMapper()
+
     public init() { }
 
     public func register<T>(_ type: DependencyType = .unique,
                             _ builder: @escaping (IDependencyContainer) -> T) {
-        let types = self.registrationKeys(for: T.self)
+        let types = self.typeMapper.registrationKeys(for: T.self)
         self.definitions.append(Definition(type: type, keys: types, builder: builder))
     }
 
@@ -109,25 +111,6 @@ private extension DependencyContainer {
             .split(separator: "&")
             .map { $0.trimmingCharacters(in: .whitespaces) }
         )
-    }
-
-    func registrationKeys(for type: Any.Type) -> Keys {
-
-        let typeName = "\(type)"
-
-        if typeName.contains("Optional<") {
-            return Set([typeName])
-        }
-
-        var typeNames = typeName
-            .split(separator: "&")
-            .map { $0.trimmingCharacters(in: .whitespaces) }
-
-        if typeName.contains("Optional<") == false {
-            typeNames.append("Optional<\(typeName)>")
-        }
-
-        return Set(typeNames)
     }
 
     func definition(for keys: Keys) -> Definition {
