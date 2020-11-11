@@ -46,7 +46,6 @@ final class VCDependencyContainerTests: XCTestCase {
     }
 
     func test_nil_registration() {
-        class B { init(foo: Foo?) { } }
         self.container.register { nil as Foo? }
         XCTAssertNil(self.container.resolve() as Foo?)
     }
