@@ -16,7 +16,7 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "git@github.com:avreolko/VCWeakContainer.git", .branch("master")),
+        .package(url: "https://github.com/avreolko/VCWeakContainer.git", .branch("master")),
     ],
     targets: [
         .target(
