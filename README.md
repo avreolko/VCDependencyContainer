@@ -1,3 +1,4 @@
+[![Tests](https://github.com/avreolko/VCDependencyContainer/workflows/Tests/badge.svg?branch=master)](https://github.com/avreolko/VCDependencyContainer/actions/workflows/tests.yml)
 # VCDependencyContainer
 
 Simple DI container
