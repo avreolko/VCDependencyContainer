@@ -12,7 +12,8 @@ let package = Package(
         // Products define the executables and libraries produced by a package, and make them visible to other packages.
         .library(
             name: "VCDependencyContainer",
-            targets: ["VCDependencyContainer"]),
+            targets: ["VCDependencyContainer"]
+        ),
     ],
     dependencies: [
         .package(url: "git@github.com:avreolko/VCWeakContainer.git", .branch("master")),
@@ -21,9 +22,12 @@ let package = Package(
         .target(
             name: "VCDependencyContainer",
             dependencies: ["VCWeakContainer"],
-            path: "Sources"),
+            path: "Sources"
+        ),
         .testTarget(
             name: "VCDependencyContainerTests",
-            dependencies: ["VCDependencyContainer"]),
+            dependencies: ["VCDependencyContainer"],
+            path: "Tests"
+        ),
     ]
 )
